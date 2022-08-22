@@ -25,16 +25,15 @@ class TripController extends Controller
             'from_city' => 'required|exists:cities,id',
             'to_city' => 'required|different:from_city|exists:cities,id',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages(), 'code' => 422], 422);
         }
 
         // Get all passangers will ride full distanse from start to end
         $fullTripDistance = CityTrip::whereFromCity($request->from_city)->whereToCity($request->to_city)->first();
-        if(!$fullTripDistance){
+        if (!$fullTripDistance) {
             return response()->json(['error' => 'In valid trip', 'code' => 422], 422);
-
         }
         // Get all pasangers by end city
         $allCityTripsEndsAtToCity = CityTrip::whereToCity($request->to_city)->pluck('id')->toArray();
@@ -77,14 +76,14 @@ class TripController extends Controller
         if (count($reservations) >= 12) {
             return response()->json(['error' => 'Sorry there is no seats avaliable.', 'code' => 404], 404);
         }
-       
+
         $avalableSeatsArr = [];
         for ($i = 0; $i < 12; $i++) {
             $avalableSeatsArr[] = 12 - $i;
         }
         $avalableSeatsArr = array_diff($avalableSeatsArr, $reservations->pluck('seat_id')->toArray());
-        $avalableSeatsNewArr= [];
-        foreach($avalableSeatsArr as $index => $avalableSeat){
+        $avalableSeatsNewArr = [];
+        foreach ($avalableSeatsArr as $index => $avalableSeat) {
             $avalableSeatsNewArr[] = $avalableSeat;
         }
         return response()->json(['data' => $avalableSeatsNewArr, 'code' => 200], 200);
@@ -135,10 +134,6 @@ class TripController extends Controller
                 ['from_city', '>', $request->from_city],
                 ['to_city', '>', $request->to_city],
             ])
-            ->orWhere([
-                ['from_city', '>', $request->from_city],
-                ['to_city', '<', $request->to_city]
-            ])
             ->pluck('id')->toArray();
 
         $allTripIds = array_merge($toCityLessThanToCityAndFromCityMoreThanToCity, $allCityTripsEndsAtToCity);
@@ -167,8 +162,8 @@ class TripController extends Controller
             $avalableSeatsArr[] = 12 - $i;
         }
         $avalableSeatsArr = array_diff($avalableSeatsArr, $reservations->pluck('seat_id')->toArray());
-        $avalableSeatsNewArr= [];
-        foreach($avalableSeatsArr as $index => $avalableSeat){
+        $avalableSeatsNewArr = [];
+        foreach ($avalableSeatsArr as $index => $avalableSeat) {
             $avalableSeatsNewArr[] = $avalableSeat;
         }
 
